@@ -206,8 +206,8 @@ class c_Preprocessing:
         plt.show()
         # plt.grid(b=None)
         
-    def PrincipalComponentAnalysis(self):
-        pca = PCA().fit(self.dataset)
+    def PrincipalComponentAnalysis(self, frequencydomain):
+        pca = PCA().fit(frequencydomain)
         var = pca.explained_variance_
         cmap = sns.color_palette()
         # plt.subplots(figsize=(30,10))
@@ -215,9 +215,10 @@ class c_Preprocessing:
         plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
         plt.show()
         
-        n_component = input('input # of components : ')
-        pca = PCA(n_components=n)
-        self.dataset = pca.fit_transform(self.datset)
+        n_components = input('input # of components : ')
+        n_components = np.int(n_components)
+        pca = PCA(n_components=n_components)
+        self.dataset = pca.fit_transform(frequencydomain)
         
         return self.dataset
         
@@ -250,3 +251,6 @@ class c_Preprocessing:
                                                                                 )
                                                                                 
         return self.X_train, self.X_test, self.y_train, self.y_test
+        
+    def AD_DL_split(self):
+        pass
