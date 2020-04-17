@@ -94,11 +94,11 @@ class c_Preprocessing:
         ## fd = True 인 경우 주파수영역 특징벡터 추출
         # -----------------------------------------------------------
         n = len(self.dataset) / window_size
-    
+        take_1sensor = self.dataset['T5']
         if n - round(n) == 0:
             df = pd.DataFrame()
-            for i in range(0, len(self.dataset), window_size):
-                temp = self.dataset.loc[i : i + window_size - 1] 
+            for i in range(0, len(take_1sensor), window_size):
+                temp = take_1sensor.loc[i : i + window_size - 1] 
                 feature_df = pd.DataFrame()
                 
                 if td:
@@ -136,10 +136,11 @@ class c_Preprocessing:
         # Full : 허수부의 계산 여부
         # -----------------------------------------------------------
         n = len(self.dataset) / window_size
+        take_1sensor = self.dataset['T5']
         if n - round(n) == 0:
             FFTSpectrum = pd.DataFrame()
-            for i in range(0, len(self.dataset), window_size):
-                temp = self.dataset.loc[i : i + window_size - 1] 
+            for i in range(0, len(take_1sensor), window_size):
+                temp = take_1sensor.loc[i : i + window_size - 1] 
                 n = len(temp)
                 d = 1/self.framerate
                 
@@ -171,9 +172,11 @@ class c_Preprocessing:
         # step_size : overlapping되는 size
         # eps : log spectrogram 계산 시 예외처리를 위한 엡실론값
         # -----------------------------------------------------------
+        
+        take_1sensor = self.dataset['T5']
         nperseg = int(round(window_size * self.framerate / 1e3))
         noverlap = int(round(step_size - self.framerate / 1e3))
-        freqs, times, spec = signal.spectrogram(self.dataset,
+        freqs, times, spec = signal.spectrogram(take_1sensor,
                                                 fs = self.framerate,
                                                 window = 'hann',
                                                 nperseg = nperseg,
