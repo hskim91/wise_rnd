@@ -223,11 +223,11 @@ class c_Preprocessing:
         
     def PrincipalComponentAnalysis(self, domain = 'TD'):
     
-        if domain = 'TD':
+        if domain == 'TD':
             print('시간영역 특징의 경우 PCA 미수행')
             pass
             
-        elif domain = 'FD':
+        elif domain == 'FD':
             dataset = self.FD
         
             pca = PCA().fit(dataset)
@@ -242,7 +242,7 @@ class c_Preprocessing:
             n_component = 80
             
             pca = PCA(n_components=n_component)
-            self.FD = pca.fit_transform(datset)
+            self.FD = pca.fit_transform(dataset)
         
         
         else:
@@ -263,7 +263,7 @@ class c_Preprocessing:
             n_component = 80
             
             pca = PCA(n_components=n_component)
-            self.FDTD = pca.fit_transform(datset)
+            self.FDTD = pca.fit_transform(dataset)
         
         # return self.pca
         
@@ -300,7 +300,7 @@ class c_Preprocessing:
         
     def make_alarm(self):
         if self.y_pred.sum() > 1:
-            os.system("start BTS_House_Of_Cards.mp3")
+            os.system("Alarm.mp3")
             
             
     def plot_confusion_matrix(self, target_names=None, cmap=None, normalize=False, labels=True, title='Confusion matrix'):
@@ -310,16 +310,38 @@ class c_Preprocessing:
     ## 다중변수를 이용하는 경우와 단일 센서값을 이용하는 경우로 분류하여 추가작성 -- 04.24 완료
     
     
-    def FailureModeclf(self, domain = 'TD', model = 'randomforest')
+    def AnomalyDetect(self, model = 'randomforest'):
+        test_data = self.dataset
+        # load pkl
+        modelNM = model
+
+        # basd_dir = '../model/'
         
-        if domain = 'TD':
+        basd_dir = 'C:/Users/user/Desktop/Vibration/model/AD_'
+        AD_Model = joblib.load(basd_dir + modelNM + '.pkl')
+        
+        # predict
+        y_pred = AD_Model.predict(test_data)
+        self.y_pred = y_pred
+        unique_elements, counts_elements = np.unique(y_pred, return_counts=True)
+        if counts_elements[0] < counts_elements[1]:
+            self.make_alarm()
+        
+        
+        return y_pred
+    
+    
+    def FailureModeclf(self, domain = 'TD', model = 'randomforest'):
+        
+        if domain == 'TD':
             test_data = self.TD
-        elif domain = 'FD'
-            test_data = self.TD
+            
+        elif domain == 'FD':
+            test_data = self.FD
+            
         else:
             test_data = self.FDTD
         
-        print(test_data.head())
         
         # load pkl
         modelNM = domain + '_' + model
@@ -327,10 +349,10 @@ class c_Preprocessing:
         # basd_dir = '../model/'
         
         basd_dir = 'C:/Users/user/Desktop/Vibration/model/FC_'
-        FC_randomforest = joblib.load(basd_dir + modelNM + '.pkl')
+        FC_Model = joblib.load(basd_dir + modelNM + '.pkl')
         
         # predict
-        y_pred = FC_randomforest.predict(test_data)
+        y_pred = FC_Model.predict(test_data)
         
         return y_pred
         
