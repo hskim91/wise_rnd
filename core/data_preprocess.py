@@ -23,6 +23,8 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve
 from sklearn.metrics import cohen_kappa_score, matthews_corrcoef
 
+import joblib
+
 # PLOT SETTING
 sys._enablelegacywindowsfsencoding()
 mpl.font_manager._rebuild()
@@ -86,7 +88,7 @@ class c_Preprocessing:
         pass    
 
     
-    def TimeDomainFeature_Extract(self, window_size = 20, td = True, fd = False):
+    def TimeDomainFeature_Extract(self, window_size = 10, td = True, fd = False):
         # -----------------------------------------------------------
         # 진동신호에 대해
         ## window_size : 전체 신호를 window로 분할한 뒤 각 윈도우에 대한 특징 추출할 때 윈도우의 크기
@@ -94,7 +96,9 @@ class c_Preprocessing:
         ## fd = True 인 경우 주파수영역 특징벡터 추출
         # -----------------------------------------------------------
         n = len(self.dataset) / window_size
+        
         take_1sensor = self.dataset['T5']
+
         if n - round(n) == 0:
             df = pd.DataFrame()
             for i in range(0, len(take_1sensor), window_size):
@@ -123,6 +127,8 @@ class c_Preprocessing:
                 df = pd.concat([df, feature_df])
             
             df.reset_index(inplace=True, drop=True)
+            self.TD = df
+            
             return df
         else:
             print('try different window size')
@@ -158,6 +164,7 @@ class c_Preprocessing:
                 FFTSpectrum = pd.concat([FFTSpectrum, pd.DataFrame(temp_freq['hs']).T])
                 
             FFTSpectrum.reset_index(inplace = True, drop = True)
+            self.FD = FFTSpectrum
             
             return  FFTSpectrum
         else:
@@ -214,20 +221,51 @@ class c_Preprocessing:
         plt.show()
         # plt.grid(b=None)
         
-    def PrincipalComponentAnalysis(self):
-        pca = PCA().fit(self.dataset)
-        var = pca.explained_variance_
-        cmap = sns.color_palette()
-        # plt.subplots(figsize=(30,10))
-        plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
-        plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
-        plt.show()
+    def PrincipalComponentAnalysis(self, domain = 'TD'):
+    
+        if domain = 'TD':
+            print('시간영역 특징의 경우 PCA 미수행')
+            pass
+            
+        elif domain = 'FD':
+            dataset = self.FD
         
-        n_component = input('input # of components : ')
-        pca = PCA(n_components=n)
-        self.dataset = pca.fit_transform(self.datset)
+            pca = PCA().fit(dataset)
+            var = pca.explained_variance_
+            cmap = sns.color_palette()
+            # plt.subplots(figsize=(30,10))
+            plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
+            plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
+            plt.show()
+            
+            # n_component = input('input # of components : ')
+            n_component = 80
+            
+            pca = PCA(n_components=n_component)
+            self.FD = pca.fit_transform(datset)
         
-        return self.dataset
+        
+        else:
+            try:
+                dataset = pd.concat([self.TD, self.FD], axis=1)
+            except:
+                print('data shapes are different')
+        
+            pca = PCA().fit(dataset)
+            var = pca.explained_variance_
+            cmap = sns.color_palette()
+            # plt.subplots(figsize=(30,10))
+            plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
+            plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
+            plt.show()
+            
+            # n_component = input('input # of components : ')
+            n_component = 80
+            
+            pca = PCA(n_components=n_component)
+            self.FDTD = pca.fit_transform(datset)
+        
+        # return self.pca
         
     def AD_ML_split(self, test_size = 0.3):
         # -----------------------------------------------------------
@@ -269,4 +307,31 @@ class c_Preprocessing:
         cm = confusion_matrix(y_test, yhat_probs, labels = labels)
         pass
         
-    ## 다중변수를 이용하는 경우와 단일 센서값을 이용하는 경우로 분류하여 추가작성
+    ## 다중변수를 이용하는 경우와 단일 센서값을 이용하는 경우로 분류하여 추가작성 -- 04.24 완료
+    
+    
+    def FailureModeclf(self, domain = 'TD', model = 'randomforest')
+        
+        if domain = 'TD':
+            test_data = self.TD
+        elif domain = 'FD'
+            test_data = self.TD
+        else:
+            test_data = self.FDTD
+        
+        print(test_data.head())
+        
+        # load pkl
+        modelNM = domain + '_' + model
+
+        # basd_dir = '../model/'
+        
+        basd_dir = 'C:/Users/user/Desktop/Vibration/model/FC_'
+        FC_randomforest = joblib.load(basd_dir + modelNM + '.pkl')
+        
+        # predict
+        y_pred = FC_randomforest.predict(test_data)
+        
+        return y_pred
+        
+        
