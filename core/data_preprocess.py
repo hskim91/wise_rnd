@@ -299,7 +299,7 @@ class c_Preprocessing:
         
         
     def make_alarm(self):
-        if self.y_pred.sum() > 1:
+        if self.AD_y_pred.sum() > 1:
             os.system("Alarm.mp3")
             
             
@@ -322,16 +322,16 @@ class c_Preprocessing:
         
         # predict
         y_pred = AD_Model.predict(test_data)
-        self.y_pred = y_pred
+        self.AD_y_pred = y_pred
         unique_elements, counts_elements = np.unique(y_pred, return_counts=True)
         if counts_elements[0] < counts_elements[1]:
             self.make_alarm()
-        
+            self.FailureModeclf()
         
         return y_pred
     
     
-    def FailureModeclf(self, domain = 'TD', model = 'randomforest'):
+    def FailureModeclf(self, domain = 'FD', model = 'randomforest'):
         
         if domain == 'TD':
             test_data = self.TD
@@ -353,7 +353,7 @@ class c_Preprocessing:
         
         # predict
         y_pred = FC_Model.predict(test_data)
-        
+        self.FC_y_pred = y_pred
         return y_pred
         
         
