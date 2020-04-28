@@ -232,11 +232,11 @@ class c_Preprocessing:
         
             pca = PCA().fit(dataset)
             var = pca.explained_variance_
-            cmap = sns.color_palette()
+            # cmap = sns.color_palette()
             # plt.subplots(figsize=(30,10))
-            plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
-            plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
-            plt.show()
+            # plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
+            # plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
+            # plt.show()
             
             # n_component = input('input # of components : ')
             n_component = 80
@@ -253,11 +253,11 @@ class c_Preprocessing:
         
             pca = PCA().fit(dataset)
             var = pca.explained_variance_
-            cmap = sns.color_palette()
+            # cmap = sns.color_palette()
             # plt.subplots(figsize=(30,10))
-            plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
-            plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
-            plt.show()
+            # plt.bar(np.arange(1, len(var)+1), var/np.sum(var), align='center', color=cmap[0])
+            # plt.step(np.arange(1,len(var)+1), np.cumsum(var)/np.sum(var), where="mid", color=cmap[1])
+            # plt.show()
             
             # n_component = input('input # of components : ')
             n_component = 80
@@ -326,9 +326,11 @@ class c_Preprocessing:
         unique_elements, counts_elements = np.unique(y_pred, return_counts=True)
         if counts_elements[0] < counts_elements[1]:
             self.make_alarm()
-            self.FailureModeclf()
+            self.FailureModeclf(model = model)
+            return self.FC_y_pred
+        else:
         
-        return y_pred
+            return self.AD_y_pred
     
     
     def FailureModeclf(self, domain = 'FD', model = 'randomforest'):
